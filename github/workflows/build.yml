@@ -1,0 +1,27 @@
+name: Build Amiral Titan APK
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get Date
+        id: get-date
+        run: |
+          echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        shell: bash
+
+      - name: Build with Buildozer
+        uses: ArtemSerebriakov/buildozer-action@v1
+        with:
+          buildozer_version: master
+          command: buildozer android debug
+          repository_display_name: Amiral Titan 2.0
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: Amiral-Titan-APK-${{ steps.get-date.outputs.date }}
+          path: bin/*.apk
