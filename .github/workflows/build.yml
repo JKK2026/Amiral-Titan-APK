@@ -3,14 +3,20 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04 # Version la plus stable pour Buildozer
+    runs-on: ubuntu-latest # Version plus récente et disponible
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.10' # Mis à jour pour compatibilité
+
+      - name: Cache Buildozer
+        uses: actions/cache@v4
+        with:
+          path: .buildozer
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
 
       - name: Install Dependencies
         run: |
@@ -27,8 +33,8 @@ jobs:
 
       - name: Build APK
         run: |
-          # Cette commande accepte automatiquement les licences sans bloquer
-          yes | buildozer android debug
+          # Utilisation de la commande "init" si besoin ou force le debug
+          buildozer android debug
         env:
           ACCEPT_SDK_LICENSE: "yes"
 
