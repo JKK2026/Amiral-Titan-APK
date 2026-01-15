@@ -6,13 +6,25 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 2.0
 
-# NOUVEAU : Kivy fait partie des requirements
-requirements = python3, kivy, pandas, requests
+# Requirements bien propres (sans espaces inutiles)
+requirements = python3,kivy==2.3.0,pandas,requests,certifi
 
-# Paramètres Android
 orientation = portrait
 fullscreen = 0
-android.arch = armeabi-v7a
 
-# NOUVEAU : Ajout de la permission internet
+# On cible les architectures modernes (très important)
+android.archs = arm64-v8a, armeabi-v7a
+
+# On fixe les versions pour éviter que GitHub ne cherche partout
+android.api = 33
+android.minapi = 21
+android.ndk = 25b
+android.skip_update = False
+android.accept_sdk_license = True
+
+# Permissions
 android.permissions = INTERNET
+
+[buildozer]
+log_level = 2
+warn_on_root = 1
