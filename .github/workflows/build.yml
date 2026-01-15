@@ -7,27 +7,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Dependencies
+      - name: System Setup
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential git python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good libffi-dev libssl-dev openjdk-17-jdk zip unzip autoconf libtool pkg-config cmake gettext aidl libncurses6 libstdc++6
           sudo ln -s /usr/lib/x86_64-linux-gnu/libncurses.so.6 /usr/lib/x86_64-linux-gnu/libncurses.so.5
 
-      - name: Build with Buildozer
+      - name: Clean & Build
         run: |
           pip install --upgrade pip
           pip install buildozer cython==0.29.33 kivy requests
-          # On supprime temporairement pandas pour valider que le reste fonctionne
-          # Si ça marche, on saura que Pandas est le seul coupable
+          
+          # On retire pandas du .spec pour ce test (très important)
           sed -i 's/pandas,//g' buildozer.spec
+          
+          # On efface les variables NDK qui gênent
+          unset ANDROID_NDK_HOME
+          unset ANDROID_NDK_ROOT
           
           buildozer -v android debug
         env:
           ACCEPT_SDK_LICENSE: "yes"
-          # On force le chemin du NDK pour éviter le conflit
-          ANDROID_NDK_HOME: "/home/runner/.buildozer/android/platform/android-ndk-r25b"
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: Amiral-Titan-APK
