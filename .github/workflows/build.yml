@@ -3,38 +3,33 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest # Version plus récente et disponible
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # Mis à jour pour compatibilité
-
-      - name: Cache Buildozer
-        uses: actions/cache@v4
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          python-version: '3.10'
 
       - name: Install Dependencies
         run: |
           sudo apt-get update
+          # Ajout des bibliothèques cruciales pour AIDL (libncurses5, libstdc++6, aidl)
           sudo apt-get install -y \
             build-essential git python3-dev ffmpeg libsdl2-dev libsdl2-image-dev \
             libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev \
             libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev \
             gstreamer1.0-plugins-base gstreamer1.0-plugins-good libffi-dev \
             libssl-dev openjdk-17-jdk zip unzip autoconf libtool pkg-config \
-            cmake gettext
+            cmake gettext aidl libncurses5 libstdc++6
           pip install --upgrade pip
           pip install buildozer cython==0.29.33 kivy pandas requests
 
       - name: Build APK
         run: |
-          # Utilisation de la commande "init" si besoin ou force le debug
-          buildozer android debug
+          # On force l'acceptation des licences avant de lancer le build
+          yes | buildozer android debug
         env:
           ACCEPT_SDK_LICENSE: "yes"
 
