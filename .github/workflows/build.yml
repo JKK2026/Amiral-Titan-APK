@@ -5,30 +5,43 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
+      # Système de Cache pour accélérer les futurs builds
+      - name: Cache Buildozer
+        uses: actions/cache@v4
+        with:
+          path: .buildozer
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-
+
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          # Ajout des bibliothèques cruciales pour AIDL (libncurses5, libstdc++6, aidl)
           sudo apt-get install -y \
             build-essential git python3-dev ffmpeg libsdl2-dev libsdl2-image-dev \
             libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev \
             libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev \
             gstreamer1.0-plugins-base gstreamer1.0-plugins-good libffi-dev \
             libssl-dev openjdk-17-jdk zip unzip autoconf libtool pkg-config \
-            cmake gettext aidl libncurses5 libstdc++6
+            cmake gettext aidl libncurses6 libstdc++6
+          
+          # Fix pour l'erreur "Aidl not found" / libncurses5
+          sudo ln -s /usr/lib/x86_64-linux-gnu/libncurses.so.6 /usr/lib/x86_64-linux-gnu/libncurses.so.5
+          
           pip install --upgrade pip
           pip install buildozer cython==0.29.33 kivy pandas requests
 
       - name: Build APK
         run: |
-          # On force l'acceptation des licences avant de lancer le build
+          # Le "yes |" force l'acceptation des licences Android SDK
           yes | buildozer android debug
         env:
           ACCEPT_SDK_LICENSE: "yes"
