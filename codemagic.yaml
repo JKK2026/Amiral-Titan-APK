@@ -6,11 +6,15 @@ workflows:
     scripts:
       - name: Install Buildozer and Dependencies
         script: |
+          # Correction pour Python 3.12
+          pip install --upgrade pip
+          pip install setuptools
           pip install buildozer
           pip install pandas kivy
       - name: Build APK
         script: |
-          # Cette commande va lancer la compilation lourde que ton téléphone ne pouvait pas faire
+          # On s'assure que buildozer.spec existe, sinon on le génère
+          if [ ! -f buildozer.spec ]; then buildozer init; fi
           yes | buildozer android debug
     artifacts:
       - bin/*.apk
