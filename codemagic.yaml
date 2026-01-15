@@ -6,15 +6,16 @@ workflows:
     scripts:
       - name: Install Buildozer and Dependencies
         script: |
-          # Correction pour Python 3.12
+          # Installation des outils de base pour Python 3.12
           pip install --upgrade pip
-          pip install setuptools
+          pip install setuptools cython==0.29.33 virtualenv
           pip install buildozer
           pip install pandas kivy
       - name: Build APK
         script: |
-          # On s'assure que buildozer.spec existe, sinon on le génère
+          # Initialisation automatique si nécessaire
           if [ ! -f buildozer.spec ]; then buildozer init; fi
+          # Lancement de la compilation
           yes | buildozer android debug
     artifacts:
       - bin/*.apk
