@@ -1,4 +1,1 @@
-python3
-pandas
-requests
-kivy
+requirements = python3,kivy==2.3.0,requests,certifi
